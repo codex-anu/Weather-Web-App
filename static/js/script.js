@@ -1,11 +1,53 @@
 /**
- * Premium Weather Dashboard Logic
+ * Premium Weather Dashboard Logic - Student Portfolio Edition
  */
 
 document.addEventListener('DOMContentLoaded', () => {
 
     // ==========================================
-    // 1. Digital Clock
+    // 1. Toast Notification (Welcome Message)
+    // ==========================================
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    const cityInputForToast = document.getElementById('mapCity');
+    
+    if (cityInputForToast && cityInputForToast.value) {
+        toastMsg.innerText = `Weather data loaded for ${cityInputForToast.value}!`;
+    }
+    
+    // Show toast
+    setTimeout(() => {
+        toast.classList.add('show');
+        // Hide toast after 4 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 4000);
+    }, 500);
+
+
+    // ==========================================
+    // 2. Scroll to Top Button
+    // ==========================================
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            scrollTopBtn.classList.add('visible');
+        } else {
+            scrollTopBtn.classList.remove('visible');
+        }
+    });
+
+    scrollTopBtn.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+
+
+    // ==========================================
+    // 3. Digital Clock
     // ==========================================
     const clockElement = document.getElementById('digitalClock');
     function updateClock() {
@@ -15,8 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateClock, 1000);
     updateClock();
 
+
     // ==========================================
-    // 2. Theme Toggle (Light / Dark)
+    // 4. Theme Toggle (Light / Dark)
     // ==========================================
     const themeToggleBtn = document.getElementById('themeToggle');
     const htmlEl = document.documentElement;
@@ -40,13 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Update Map tiles if map exists
-        if (window.weatherMap) {
-            updateMapTiles(theme);
+        if (window.weatherMap && window.updateMapTiles) {
+            window.updateMapTiles(theme);
         }
     }
 
+
     // ==========================================
-    // 3. Search History (LocalStorage)
+    // 5. Search History & Form Handling
     // ==========================================
     const searchForm = document.getElementById('searchForm');
     const cityInput = document.getElementById('cityInput');
@@ -70,6 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
             li.addEventListener('click', () => {
                 cityInput.value = city;
                 searchForm.submit();
+                btnIcon.style.display = 'none';
+                btnLoader.style.display = 'block';
             });
             historyList.appendChild(li);
         });
@@ -80,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
         searchDropdown.classList.add('active');
     });
 
-    // Hide dropdown when clicking outside
     document.addEventListener('click', (e) => {
         if (!searchForm.contains(e.target) && !searchDropdown.contains(e.target)) {
             searchDropdown.classList.remove('active');
@@ -96,19 +141,18 @@ document.addEventListener('DOMContentLoaded', () => {
     searchForm.addEventListener('submit', (e) => {
         const val = cityInput.value.trim();
         if (val) {
-            // Remove if exists, add to front, keep max 5
             history = history.filter(c => c.toLowerCase() !== val.toLowerCase());
             history.unshift(val);
             if (history.length > 5) history.pop();
             localStorage.setItem('weatherHistory', JSON.stringify(history));
         }
-
         btnIcon.style.display = 'none';
         btnLoader.style.display = 'block';
     });
 
+
     // ==========================================
-    // 4. Dynamic Backgrounds
+    // 6. Dynamic Backgrounds (Weather Based)
     // ==========================================
     const dynamicBg = document.getElementById('dynamic-bg');
     const weatherCodeInput = document.getElementById('weatherCode');
@@ -118,37 +162,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const code = parseInt(weatherCodeInput.value);
         const isDay = parseInt(isDayInput.value);
         
-        let bgClass = 'circle-bg'; // Default circles
+        let bgClass = ''; 
         
-        // Define weather mapping
-        if (code === 0 || code === 1) bgClass = isDay ? 'bg-sunny' : 'circle-bg';
+        // Match Weather Codes to Background CSS Classes
+        if (code === 0 || code === 1) bgClass = isDay ? 'bg-sunny' : 'bg-night';
+        else if (code === 2 || code === 3) bgClass = 'bg-cloudy';
         else if (code >= 51 && code <= 67) bgClass = 'bg-rain';
         else if (code >= 71 && code <= 86) bgClass = 'bg-snow';
-        else if (code >= 95 && code <= 99) bgClass = 'bg-rain'; // thunderstorm uses rain bg for now
-        else if (code === 45 || code === 48) bgClass = 'circle-bg'; // fog
+        else if (code >= 95 && code <= 99) bgClass = 'bg-thunder';
+        else if (code === 45 || code === 48) bgClass = 'bg-cloudy'; // fog
+        else bgClass = isDay ? '' : 'bg-night'; // fallback
 
-        if (bgClass !== 'circle-bg') {
+        if (bgClass) {
             dynamicBg.className = `dynamic-bg ${bgClass}`;
         } else {
-            dynamicBg.innerHTML = '<div class="circle-bg c1"></div><div class="circle-bg c2"></div>';
+            dynamicBg.className = 'dynamic-bg'; // Default gradient handles it nicely
         }
-    } else {
-        dynamicBg.innerHTML = '<div class="circle-bg c1"></div><div class="circle-bg c2"></div>';
     }
 
+
     // ==========================================
-    // 5. Extra Features (Share & Fav)
+    // 7. Extra Features (Copy & Favorite)
     // ==========================================
     const shareBtn = document.getElementById('shareBtn');
     if (shareBtn) {
         shareBtn.addEventListener('click', () => {
             const cityName = document.getElementById('cityNameDisplay').innerText;
             const temp = document.querySelector('.huge-temp').innerText;
-            const desc = document.querySelector('.condition-desc').innerText;
+            const desc = document.querySelector('.condition').innerText;
             
-            const textToCopy = `Weather in ${cityName}: ${temp}, ${desc}. via Premium Weather Dashboard`;
+            const textToCopy = `Weather in ${cityName}: ${temp}, ${desc}.`;
             navigator.clipboard.writeText(textToCopy).then(() => {
-                alert('Weather details copied to clipboard!');
+                toastMsg.innerText = 'Weather details copied!';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
             });
         });
     }
@@ -156,31 +203,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const favBtn = document.getElementById('favBtn');
     if (favBtn) {
         favBtn.addEventListener('click', () => {
-            const cityName = document.getElementById('mapCity').value;
-            favBtn.querySelector('i').className = 'fa-solid fa-star';
-            favBtn.querySelector('i').style.color = '#eab308';
-            alert(`${cityName} added to favorites! (Visual demo)`);
+            const icon = favBtn.querySelector('i');
+            if (icon.classList.contains('fa-regular')) {
+                icon.className = 'fa-solid fa-star';
+                icon.style.color = '#fde047'; // Yellow
+                toastMsg.innerText = 'Added to Favorites!';
+            } else {
+                icon.className = 'fa-regular fa-star';
+                icon.style.color = '';
+                toastMsg.innerText = 'Removed from Favorites!';
+            }
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
         });
     }
 
+
     // ==========================================
-    // 6. Leaflet Map Initialization
+    // 8. Leaflet Map Initialization
     // ==========================================
     const mapElement = document.getElementById('map');
-    
-    // Store tile layers globally to switch them
     let darkTiles, lightTiles, currentLayer;
     
     window.updateMapTiles = function(theme) {
         if (!window.weatherMap) return;
-        
         if (currentLayer) window.weatherMap.removeLayer(currentLayer);
         
-        if (theme === 'dark') {
-            currentLayer = darkTiles;
-        } else {
-            currentLayer = lightTiles;
-        }
+        currentLayer = theme === 'dark' ? darkTiles : lightTiles;
         currentLayer.addTo(window.weatherMap);
     };
     
@@ -197,21 +246,19 @@ document.addEventListener('DOMContentLoaded', () => {
             window.weatherMap = L.map('map', {
                 zoomControl: true,
                 attributionControl: false
-            }).setView([lat, lon], 11);
+            }).setView([lat, lon], 10);
             
-            // Define Tile Layers
+            // CartoDB tiles are beautiful and free for student projects
             darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 });
             lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 });
             
-            // Set initial tiles
             updateMapTiles(htmlEl.getAttribute('data-theme'));
             
-            // Custom Marker
             const customIcon = L.divIcon({
                 className: 'custom-div-icon',
-                html: '<div style="background-color: #3b82f6; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);"></div>',
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
+                html: '<div style="background-color: #38bdf8; width: 22px; height: 22px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(56, 189, 248, 0.9);"></div>',
+                iconSize: [22, 22],
+                iconAnchor: [11, 11]
             });
             
             L.marker([lat, lon], { icon: customIcon })

@@ -14,8 +14,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="theme-transition">
+    
     <!-- Dynamic Background Elements -->
     <div id="dynamic-bg" class="dynamic-bg"></div>
+    
+    <!-- Toast Notification (Welcome Message) -->
+    <div id="toast" class="toast glass-panel">
+        <i class="fa-solid fa-bell"></i>
+        <span id="toastMsg">Welcome to WeatherDash!</span>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollTopBtn" class="scroll-top-btn glass-panel" title="Go to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
 
     <div class="dashboard-container">
         <!-- Top Navigation -->
@@ -67,147 +79,124 @@
         <input type="hidden" id="mapLon" value="{{ weather.lon }}">
         <input type="hidden" id="mapCity" value="{{ weather.city }}">
 
-        <div class="dashboard-grid">
-            <!-- Left Column: Main Weather & Hourly -->
-            <div class="main-column">
-                <!-- Current Weather Card -->
-                <div class="current-weather glass-panel">
-                    <div class="current-header">
-                        <div>
-                            <h1 class="city-name" id="cityNameDisplay">{{ weather.city }}, <span class="country">{{ weather.country }}</span></h1>
-                            <p class="current-date">{{ weather.date }}</p>
-                        </div>
-                        <div class="card-actions">
-                            <button class="icon-btn" id="favBtn" title="Add to Favorites"><i class="fa-regular fa-star"></i></button>
-                            <button class="icon-btn" id="shareBtn" title="Copy Details"><i class="fa-solid fa-share-nodes"></i></button>
-                        </div>
+        <!-- FIRST ROW: Current Weather + Map -->
+        <div class="top-grid">
+            
+            <!-- Current Weather Card -->
+            <div class="current-card glass-panel fade-in">
+                <div class="card-header">
+                    <div>
+                        <h2 class="city-name" id="cityNameDisplay">{{ weather.city }}, <span class="country">{{ weather.country }}</span></h2>
+                        <p class="current-date">{{ weather.date }} &bull; Updated: {{ weather.last_updated }}</p>
                     </div>
-                    
-                    <div class="current-body">
-                        <div class="temp-section">
-                            <h2 class="huge-temp">{{ weather.temp }}&deg;</h2>
-                            <p class="feels-like">Feels like {{ weather.feels_like }}&deg;</p>
-                        </div>
-                        <div class="weather-icon-section">
-                            <i class="fa-solid fa-{{ weather.icon }} main-icon"></i>
-                            <p class="condition-desc">{{ weather.desc }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Hourly Forecast -->
-                <div class="hourly-forecast glass-panel">
-                    <h3><i class="fa-regular fa-clock"></i> 24-Hour Forecast</h3>
-                    <div class="hourly-scroll">
-                        {% for h in weather.hourly %}
-                        <div class="hourly-item">
-                            <span class="h-time">{{ h.time }}</span>
-                            <i class="fa-solid fa-{{ h.icon }} h-icon"></i>
-                            <span class="h-temp">{{ h.temp }}&deg;</span>
-                        </div>
-                        {% endfor %}
+                    <div class="actions">
+                        <button class="icon-btn" id="favBtn" title="Add to Favorites"><i class="fa-regular fa-star"></i></button>
+                        <button class="icon-btn" id="shareBtn" title="Copy Details"><i class="fa-solid fa-copy"></i></button>
                     </div>
                 </div>
                 
-                <!-- Detailed Metrics Grid -->
-                <div class="metrics-grid">
-                    <div class="metric-card glass-panel">
-                        <div class="metric-title"><i class="fa-solid fa-droplet"></i> Humidity</div>
-                        <div class="metric-value">{{ weather.humidity }}%</div>
+                <div class="current-body">
+                    <div class="temp-wrapper">
+                        <i class="fa-solid fa-{{ weather.icon }} huge-icon weather-anim"></i>
+                        <div class="temp-info">
+                            <h1 class="huge-temp">{{ weather.temp }}&deg;</h1>
+                            <p class="condition">{{ weather.desc }}</p>
+                            <p class="feels-like">Feels Like: {{ weather.feels_like }}&deg;</p>
+                        </div>
                     </div>
-                    <div class="metric-card glass-panel">
-                        <div class="metric-title"><i class="fa-solid fa-wind"></i> Wind</div>
-                        <div class="metric-value">{{ weather.wind_speed }} km/h</div>
-                    </div>
-                    <div class="metric-card glass-panel">
-                        <div class="metric-title"><i class="fa-solid fa-gauge-high"></i> Pressure</div>
-                        <div class="metric-value">{{ weather.pressure }} hPa</div>
-                    </div>
-                    <div class="metric-card glass-panel">
-                        <div class="metric-title"><i class="fa-solid fa-eye"></i> Visibility</div>
-                        <div class="metric-value">{{ weather.visibility }} km</div>
-                    </div>
-                    <div class="metric-card glass-panel">
-                        <div class="metric-title"><i class="fa-solid fa-sun"></i> UV Index</div>
-                        <div class="metric-value">{{ weather.uv_index }}</div>
-                    </div>
-                    <div class="metric-card glass-panel">
-                        <div class="metric-title"><i class="fa-solid fa-cloud"></i> Cloud Cover</div>
-                        <div class="metric-value">{{ weather.cloud_cover }}%</div>
+                    
+                    <div class="quick-stats">
+                        <div class="q-stat"><i class="fa-solid fa-leaf"></i> <span>AQI: {{ weather.aqi }}</span></div>
+                        <div class="q-stat"><i class="fa-solid fa-wind"></i> <span>{{ weather.wind_speed }} km/h</span></div>
+                        <div class="q-stat"><i class="fa-solid fa-droplet"></i> <span>{{ weather.humidity }}%</span></div>
+                        <div class="q-stat"><i class="fa-solid fa-sun"></i> <span>UV: {{ weather.uv_index }}</span></div>
+                        <div class="q-stat"><i class="fa-solid fa-gauge"></i> <span>{{ weather.pressure }} hPa</span></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: 5-Day, AQI, Sun & Map -->
-            <div class="side-column">
-                <!-- 5 Day Forecast -->
-                <div class="daily-forecast glass-panel">
-                    <h3><i class="fa-regular fa-calendar-days"></i> 5-Day Forecast</h3>
-                    <div class="daily-list">
-                        {% for d in weather.daily %}
-                        <div class="daily-item">
-                            <span class="d-day">{{ d.day }}</span>
-                            <div class="d-center">
-                                <i class="fa-solid fa-{{ d.icon }}" title="{{ d.desc }}"></i>
-                                <span class="d-rain"><i class="fa-solid fa-umbrella"></i> {{ d.rain_chance }}%</span>
-                            </div>
-                            <div class="d-temps">
-                                <span class="d-min">{{ d.min_temp }}&deg;</span>
-                                <div class="temp-bar"></div>
-                                <span class="d-max">{{ d.max_temp }}&deg;</span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
+            <!-- Live Map -->
+            <div class="map-card glass-panel fade-in delay-1">
+                <div class="card-header map-header">
+                    <h3><i class="fa-solid fa-map-location-dot"></i> Live Map</h3>
+                    <span class="badge">Leaflet / OSM</span>
                 </div>
+                <div id="map" class="map-box"></div>
+            </div>
+            
+        </div> <!-- End First Row -->
 
-                <!-- Air Quality -->
-                <div class="aqi-card glass-panel">
-                    <h3><i class="fa-solid fa-leaf"></i> Air Quality</h3>
-                    {% if weather.aqi != 'N/A' %}
-                    <div class="aqi-body">
-                        <div class="aqi-main">
-                            <span class="aqi-val">{{ weather.aqi }}</span>
-                            <span class="aqi-label">AQI</span>
-                        </div>
-                        <div class="aqi-details">
-                            <div><span>PM2.5</span> <strong>{{ weather.pm25 }}</strong></div>
-                            <div><span>PM10</span> <strong>{{ weather.pm10 }}</strong></div>
-                        </div>
+        <!-- SECOND ROW: 5 Day Forecast (Horizontal) -->
+        <div class="forecast-5day glass-panel fade-in delay-2">
+            <h3 class="section-title"><i class="fa-solid fa-calendar-days"></i> 5-Day Forecast</h3>
+            <div class="daily-horizontal">
+                {% for d in weather.daily %}
+                <div class="daily-card hover-scale">
+                    <h4>{{ d.day }}</h4>
+                    <i class="fa-solid fa-{{ d.icon }} d-icon"></i>
+                    <div class="d-temps">
+                        <span class="d-min">{{ d.min_temp }}&deg;</span>
+                        <span class="d-max">{{ d.max_temp }}&deg;</span>
                     </div>
-                    {% else %}
-                    <p class="unavailable">Currently unavailable</p>
-                    {% endif %}
+                    <div class="d-rain"><i class="fa-solid fa-umbrella"></i> {{ d.rain_chance }}%</div>
                 </div>
+                {% endfor %}
+            </div>
+        </div>
 
-                <!-- Sunrise / Sunset & Coordinates -->
-                <div class="sun-card glass-panel">
-                    <div class="sun-item">
-                        <i class="fa-solid fa-cloud-sun" style="color:#f59e0b;"></i>
-                        <div>
-                            <span class="sun-label">Sunrise</span>
-                            <span class="sun-val">{{ weather.sunrise }}</span>
-                        </div>
-                    </div>
-                    <div class="sun-item">
-                        <i class="fa-solid fa-moon" style="color:#f97316;"></i>
-                        <div>
-                            <span class="sun-label">Sunset</span>
-                            <span class="sun-val">{{ weather.sunset }}</span>
-                        </div>
-                    </div>
+        <!-- THIRD ROW: 24 Hour Forecast (Scrollable) -->
+        <div class="forecast-hourly glass-panel fade-in delay-3">
+            <h3 class="section-title"><i class="fa-regular fa-clock"></i> 24-Hour Forecast</h3>
+            <div class="hourly-scroll">
+                {% for h in weather.hourly %}
+                <div class="hourly-card hover-scale">
+                    <span class="h-time">{{ h.time }}</span>
+                    <i class="fa-solid fa-{{ h.icon }} h-icon"></i>
+                    <span class="h-temp">{{ h.temp }}&deg;</span>
                 </div>
+                {% endfor %}
+            </div>
+        </div>
 
-                <!-- Map -->
-                <div class="map-container glass-panel">
-                    <div class="map-header">
-                        <h3><i class="fa-solid fa-location-dot"></i> Live Map</h3>
-                        <span class="coords">{{ weather.lat }}, {{ weather.lon }}</span>
-                    </div>
-                    <div id="map"></div>
+        <!-- FOURTH ROW: Detailed Weather Grid -->
+        <div class="details-section fade-in delay-4">
+            <h3 class="section-title"><i class="fa-solid fa-chart-pie"></i> Weather Details</h3>
+            <div class="details-grid">
+                <div class="detail-box glass-panel hover-scale">
+                    <div class="d-title"><i class="fa-solid fa-droplet"></i> Humidity</div>
+                    <div class="d-val">{{ weather.humidity }}%</div>
+                </div>
+                <div class="detail-box glass-panel hover-scale">
+                    <div class="d-title"><i class="fa-solid fa-gauge-high"></i> Pressure</div>
+                    <div class="d-val">{{ weather.pressure }} hPa</div>
+                </div>
+                <div class="detail-box glass-panel hover-scale">
+                    <div class="d-title"><i class="fa-solid fa-wind"></i> Wind</div>
+                    <div class="d-val">{{ weather.wind_speed }} km/h</div>
+                </div>
+                <div class="detail-box glass-panel hover-scale">
+                    <div class="d-title"><i class="fa-solid fa-eye"></i> Visibility</div>
+                    <div class="d-val">{{ weather.visibility }} km</div>
+                </div>
+                <div class="detail-box glass-panel hover-scale">
+                    <div class="d-title"><i class="fa-solid fa-cloud"></i> Cloud Cover</div>
+                    <div class="d-val">{{ weather.cloud_cover }}%</div>
+                </div>
+                <div class="detail-box glass-panel hover-scale">
+                    <div class="d-title"><i class="fa-solid fa-sun"></i> UV Index</div>
+                    <div class="d-val">{{ weather.uv_index }}</div>
+                </div>
+                <div class="detail-box glass-panel hover-scale">
+                    <div class="d-title"><i class="fa-solid fa-sunrise"></i> Sunrise</div>
+                    <div class="d-val">{{ weather.sunrise }}</div>
+                </div>
+                <div class="detail-box glass-panel hover-scale">
+                    <div class="d-title"><i class="fa-solid fa-sunset"></i> Sunset</div>
+                    <div class="d-val">{{ weather.sunset }}</div>
                 </div>
             </div>
         </div>
+
         {% endif %}
     </div>
     

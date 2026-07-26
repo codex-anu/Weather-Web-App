@@ -190,6 +190,7 @@ def index():
                     "sunrise": sunrise,
                     "sunset": sunset,
                     "date": now.strftime("%A, %d %b %Y"),
+                    "last_updated": now.strftime("%I:%M %p"),
                     "aqi": aqi_cur.get("european_aqi", "N/A"),
                     "pm25": aqi_cur.get("pm2_5", "N/A"),
                     "pm10": aqi_cur.get("pm10", "N/A"),
