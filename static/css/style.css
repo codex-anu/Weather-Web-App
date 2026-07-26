@@ -105,7 +105,15 @@ body {
     background-size: 40px 40px; animation: snowFall 3.5s linear infinite;
 }
 .bg-thunder::before { content: ''; position: absolute; width: 100%; height: 100%; animation: lightningFlash 7s infinite; z-index: 1; }
-.bg-thunder::after { @extend .bg-rain::after; animation: rainFall 0.4s linear infinite; }
+.bg-thunder::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><line x1="50" y1="0" x2="50" y2="15" stroke="rgba(255,255,255,0.4)" stroke-width="0.5" stroke-linecap="round"/></svg>');
+    background-size: 25px 25px;
+    animation: rainFall 0.4s linear infinite;
+}
 .bg-cloudy::after {
     content: ''; position: absolute; width: 300px; height: 100px; top: 10%; left: 0;
     background: radial-gradient(circle, rgba(255,255,255,0.2) 20%, transparent 60%);
@@ -262,14 +270,173 @@ body {
 .d-title i { color: var(--accent-color); font-size: 1.2rem; }
 .d-val { font-size: 2rem; font-weight: 700; }
 
-/* FOOTER */
-footer { margin-top: 2rem; }
-.footer-content { padding: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; }
-.social-links { display: flex; gap: 1.5rem; }
-.social-links a { color: var(--text-primary); font-size: 1.8rem; transition: var(--transition-fast); }
-.social-links a:hover { color: var(--accent-color); transform: scale(1.2) translateY(-3px); }
-.attribution { color: var(--text-secondary); font-size: 0.9rem; }
-.attribution a { color: var(--accent-color); text-decoration: none; font-weight: 600; }
+/* ===========================
+        WEATHERHUB FOOTER
+=========================== */
+
+.weatherhub-footer{
+    padding:80px 20px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+}
+
+.footer-container{
+    max-width:900px;
+    margin:auto;
+}
+
+/* Project Title */
+
+.footer-title{
+    font-size:3rem;
+    font-weight:800;
+    color:#f5f5f5;
+    margin-bottom:35px;
+}
+
+.footer-title span{
+    background:linear-gradient(90deg,#53b7ff,#9d7cff);
+    background-clip:text;
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* Divider */
+
+.footer-divider{
+    width:260px;
+    height:1px;
+    background:rgba(255,255,255,.15);
+    margin:0 auto 40px;
+    position:relative;
+}
+
+.footer-divider span{
+    width:14px;
+    height:14px;
+    background:#8b5cf6;
+    border-radius:50%;
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    box-shadow:0 0 20px #8b5cf6;
+}
+
+/* Text */
+
+.footer-text{
+    font-size:2rem;
+    color:#cfcfd7;
+    margin-bottom:12px;
+    font-weight:400;
+}
+
+/* Name */
+
+.developer-name{
+    font-size:3.2rem;
+    font-weight:800;
+    margin-bottom:55px;
+    background:linear-gradient(90deg,#56b7ff,#a97dff);
+
+    background-clip:text;
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+/* Social */
+
+.footer-social{
+    display:flex;
+    justify-content:center;
+    gap:35px;
+    flex-wrap:wrap;
+}
+
+/* Buttons */
+
+.social-btn{
+    width:320px;
+    height:110px;
+    border-radius:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    text-decoration:none;
+    font-size:2rem;
+    font-weight:700;
+    transition:.35s ease;
+}
+
+.social-btn i{
+    font-size:3rem;
+}
+
+/* GitHub */
+
+.github{
+    border:2px solid rgba(165,150,255,.45);
+    color:#fff;
+    background:rgba(255,255,255,.03);
+}
+
+.github:hover{
+    transform:translateY(-8px);
+    border-color:#ffffff;
+    box-shadow:0 0 30px rgba(255,255,255,.15);
+}
+
+/* LinkedIn */
+
+.linkedin{
+    border:2px solid #00a2ff;
+    color:#fff;
+    background:rgba(255,255,255,.03);
+}
+
+.linkedin:hover{
+    transform:translateY(-8px);
+    box-shadow:0 0 30px rgba(0,162,255,.35);
+}
+
+.linkedin i{
+    color:#0ea5ff;
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+.footer-title{
+    font-size:2rem;
+}
+
+.footer-text{
+    font-size:1.3rem;
+}
+
+.developer-name{
+    font-size:2.2rem;
+}
+
+.social-btn{
+    width:100%;
+    max-width:320px;
+    height:80px;
+    font-size:1.3rem;
+}
+
+.social-btn i{
+    font-size:2rem;
+}
+
+.footer-divider{
+    width:180px;
+}
+
+}
 
 /* Leaflet Overrides */
 .leaflet-container { font-family: inherit; }
